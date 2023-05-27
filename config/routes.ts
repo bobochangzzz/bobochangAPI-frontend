@@ -12,7 +12,6 @@
     access: 'canAdmin',
     component: './InterfaceInfo',
   },
-  { name: '查询表格', icon: 'table', path: '/list', component: './TableList' },
   { path: '/', redirect: '/welcome' },
   { path: '*', layout: false, component: './404' },
 ];
