@@ -1,252 +1,94 @@
-import {
-  addInterfaceInfoUsingPOST,
-  deleteInterfaceInfoUsingPOST,
-  listInterfaceInfoByPageUsingGET,
-  updateInterfaceInfoUsingPOST
-} from '@/services/bobochangAPI/interfaceInfoController';
-import {PlusOutlined} from '@ant-design/icons';
-import {ActionType, PageContainer, ProColumns, ProTable} from '@ant-design/pro-components';
-import {Button, message} from 'antd';
-import {SortOrder} from 'antd/es/table/interface';
-import React, {useRef, useState} from 'react';
-import CreateModal from "@/pages/InterfaceInfo/components/CreateModal";
-import UpdateModal from "@/pages/InterfaceInfo/components/UpdateModal";
+import React, {useEffect, useState} from "react";
+import {getInterfaceInfoByIdUsingGET, invokeInterfaceUsingPOST} from "@/services/bobochangAPI/interfaceInfoController";
+import {Button, Card, Descriptions, Form, Input, message} from "antd";
+import {useParams} from "@@/exports";
+import {PageContainer} from "@ant-design/pro-components";
 
 const InterfaceInfo: React.FC = () => {
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
-  const [showDetail, setShowDetail] = useState<boolean>(false);
-  const [currentRow, setCurrentRow] = useState<API.InterfaceInfo>();
-  const actionRef = useRef<ActionType>();
-  const handleAdd = async (fields: API.InterfaceInfo) => {
-    const hide = message.loading('正在添加');
-    try {
-      await addInterfaceInfoUsingPOST({
-        ...fields,
-      });
-      hide();
-      message.success('创建成功');
-      handleModalVisible(false);
-      actionRef.current?.reload();
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('创建失败，' + error.message);
-      return false;
-    }
-  };
+  const [loading, setLoading] = useState(false);
+  const [invokeLoading, setInvokeLoading] = useState(false);
+  const [data, setData] = useState<API.InterfaceInfo>();
+  const [invokeRes, setInvokeRes] = useState<any>();
+  const placeholder = '示例：{"username": "bobochang"}';
 
-  const handleUpdate = async (fields: API.InterfaceInfo) => {
-    if (!currentRow) {
+  const params = useParams();
+  const onFinish = async (values: any) => {
+    setInvokeLoading(true)
+    if (!params.id) {
+      message.error('参数不存在');
       return;
     }
-    const hide = message.loading('修改中');
     try {
-      await updateInterfaceInfoUsingPOST({
-        id: currentRow.id,
-        ...fields
+      const res = await invokeInterfaceUsingPOST({
+        id: params.id,
+        ...values,
       });
-      hide();
-      message.success('操作成功');
-      return true;
+      setInvokeRes(res.data);
+      message.success('调用成功')
     } catch (error: any) {
-      hide();
-      message.error('操作失败，' + error.message);
-      return false;
+      message.error('调用失败 ' + error.message)
     }
+    setInvokeLoading(false)
   };
-
-  const handleRemove = async (record: API.InterfaceInfo) => {
-    const hide = message.loading('正在删除');
-    if (!record) return true;
+  const loadData = async () => {
+    setLoading(true);
+    if (!params.id) {
+      message.error('参数不存在');
+      return;
+    }
     try {
-      await deleteInterfaceInfoUsingPOST({
-        id: record.id
+      const res = await getInterfaceInfoByIdUsingGET({
+        id: Number(params.id)
       });
-      hide();
-      message.success('删除成功');
-      actionRef.current?.reload();
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('删除失败，' + error.message);
-      return false;
+      setData(res?.data);
+    } catch (e: any) {
+      message.error('获取接口信息失败 ' + e.message);
     }
-  };
+    setLoading(false);
+  }
 
-
-  const columns: ProColumns<API.InterfaceInfo>[] = [
-    {
-      title: '接口名称',
-      dataIndex: 'name',
-      valueType: 'text',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-          },
-        ],
-      },
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      valueType: 'textarea',
-      hideInSearch: true,
-    },
-    {
-      title: '请求方法',
-      dataIndex: 'method',
-      valueType: 'text',
-    },
-    {
-      title: 'url',
-      dataIndex: 'url',
-      valueType: 'text',
-      hideInSearch: true,
-    },
-    {
-      title: '请求参数',
-      dataIndex: 'requestParams',
-      valueType: 'jsonCode',
-      hideInSearch: true,
-    },
-    {
-      title: '请求头',
-      dataIndex: 'requestHeader',
-      valueType: 'jsonCode',
-      hideInSearch: true,
-    },
-    {
-      title: '响应头',
-      dataIndex: 'responseHeader',
-      valueType: 'jsonCode',
-      hideInSearch: true,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      hideInForm: true,
-      valueEnum: {
-        0: {
-          text: '关闭',
-          status: 'Error',
-        },
-        1: {
-          text: '开启',
-          status: 'Processing',
-        },
-      },
-    },
-    {
-      title: '操作',
-      dataIndex: 'option',
-      valueType: 'option',
-      render: (_, record) => [
-        record.status === 0 ? <a
-          key="0"
-          type="text"
-          style={{color: 'green'}}
-          onClick={() => {
-          }}
-        >
-          发布
-        </a> : null,
-        record.status === 1 ? <a
-          type="text"
-          style={{color: 'orange'}}
-          key="1"
-          onClick={() => {
-          }}
-        >
-          下线
-        </a> : null,
-        <a key="2" onClick={() => {
-          handleUpdateModalVisible(true);
-          setCurrentRow(record);
-        }}>
-          修改
-        </a>,
-        <a key="3" style={{color:'red'}} onClick={() => {
-          handleRemove(record).then(res => {
-            console.log(res);
-          });
-        }}>
-          删除
-        </a>,
-      ],
-    },
-  ];
-
+  useEffect(() => {
+    loadData();
+  }, [])
   return (
-    <PageContainer style={{whiteSpace: 'pre-wrap'}}>
-      <ProTable<API.RuleListItem, API.PageParams>
-        actionRef={actionRef}
-        cardBordered
-        rowKey="key"
-        search={{
-          labelWidth: 120,
-        }}
-        toolBarRender={() => [
-          <Button type="primary" key="button" onClick={() => {
-            handleModalVisible(true);
-          }}>
-            <PlusOutlined/> 新建
-          </Button>,
-        ]}
-        request={async (
-          params,
-          sort: Record<string, SortOrder>,
-          filter: Record<string, React.ReactText[] | null>,
-        ) => {
-          const res: any = await listInterfaceInfoByPageUsingGET({
-            ...params,
-          });
-          if (res?.data) {
-            return {
-              data: res?.data.records || [],
-              success: true,
-              total: res?.data.total || 0,
-            };
-          } else {
-            return {
-              data: [],
-              success: false,
-              total: 0,
-            };
-          }
-        }}
-        columns={columns}
-      />
-      <CreateModal
-        values={columns}
-        visible={createModalVisible}
-        onCancel={() => {
-          handleModalVisible(false);
-        }}
-        onFinish={(values): Promise<boolean> => handleAdd(values)}/>
-      <UpdateModal
-        columns={columns}
-        values={currentRow || {}}
-        onCancel={() => {
-          handleUpdateModalVisible(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
-        }}
-        onFinish={async (value) => {
-          const success = await handleUpdate(value);
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-        visible={updateModalVisible}
-      />
+    <PageContainer>
+      <Card loading={loading} title="接口信息">
+        {data ? (
+          <Descriptions column={2}>
+            <Descriptions.Item label="接口名称">{data?.name}</Descriptions.Item>
+            <Descriptions.Item label="接口描述">{data?.description}</Descriptions.Item>
+            <Descriptions.Item label="接口状态">{data?.status ? '开启' : '关闭'}</Descriptions.Item>
+            <Descriptions.Item label="接口方法">{data?.method}</Descriptions.Item>
+            <Descriptions.Item label="接口地址">{data?.url}</Descriptions.Item>
+            <Descriptions.Item label="请求参数">{data?.requestParams}</Descriptions.Item>
+            <Descriptions.Item label="请求头">&nbsp;&nbsp;&nbsp;{data?.requestHeader}</Descriptions.Item>
+            <Descriptions.Item label="响应头">&nbsp;&nbsp;&nbsp;{data?.responseHeader}</Descriptions.Item>
+          </Descriptions>
+        ) : <>接口信息不存在</>
+        }
+      </Card>
+      <Card title="请求参数" style={{marginTop: 18}}>
+        <Form
+          name="invoke"
+          layout="vertical"
+          onFinish={onFinish}
+        >
+          <Form.Item
+            name="requestParams"
+          >
+            <Input.TextArea placeholder={placeholder}/>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={invokeLoading}>
+              调用
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+      <Card title="调用结果" style={{marginTop: 18}} loading={invokeLoading}>
+        {invokeRes ? invokeRes : "点击调用后会显示调用结果"}
+      </Card>
     </PageContainer>
-  );
-};
-export default InterfaceInfo;
+  )
+}
+export default InterfaceInfo
