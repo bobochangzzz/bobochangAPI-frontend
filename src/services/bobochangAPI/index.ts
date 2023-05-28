@@ -5,7 +5,6 @@
 import * as fileController from './fileController';
 import * as interfaceInfoController from './interfaceInfoController';
 import * as userController from './userController';
-
 export default {
   fileController,
   interfaceInfoController,
