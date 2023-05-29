@@ -1,13 +1,10 @@
-import { uploadFileUsingPOST } from '@/services/bobochangAPI/fileController';
-import {
-  getLoginUserUsingGET,
-  updateMyUserUsingPOST,
-} from '@/services/bobochangAPI/userController';
-import { DownloadOutlined, LoadingOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Descriptions, Form, message, Row, Typography, Upload } from 'antd';
+import {uploadFileUsingPOST} from '@/services/bobochangAPI/fileController';
+import {getLoginUserUsingGET, reloadKeyUsingGET, updateMyUserUsingPOST,} from '@/services/bobochangAPI/userController';
+import {DownloadOutlined, LoadingOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import {Button, Card, Col, Descriptions, Form, message, Row, Typography, Upload} from 'antd';
 import Input from 'antd/es/input/Input';
-import type { RcFile } from 'antd/es/upload/interface';
-import React, { useEffect, useState } from 'react';
+import type {RcFile} from 'antd/es/upload/interface';
+import React, {useEffect, useState} from 'react';
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -28,16 +25,17 @@ const beforeUpload = (file: RcFile) => {
 };
 
 const Info: React.FC = () => {
-  const { Paragraph } = Typography;
+  const {Paragraph} = Typography;
   const [imageUrl, setImageUrl] = useState<string>();
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<API.User>();
-
+  const [updateKey, setUpdateKey] = useState<boolean>(false);
   const loadData = async () => {
     try {
       const res = await getLoginUserUsingGET();
+      console.log(res.data);
       if (res.data) {
         setUserData(res.data);
       }
@@ -63,24 +61,35 @@ const Info: React.FC = () => {
 
   const uploadButton = (
     <div>
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      {loading ? <LoadingOutlined/> : <PlusOutlined/>}
+      <div style={{marginTop: 8}}>上传头像</div>
     </div>
   );
+
+  const reloadKeys = async () => {
+    setUpdateKey(true);
+    try {
+      const res = await reloadKeyUsingGET();
+      if (res.data) {
+        message.success('重新生成密钥成功');
+      }
+    } catch (e: any) {
+      message.error('重新生成密钥失败 ' + e.message);
+    }
+    setUpdateKey(false);
+  }
 
   const onFinish = async (values: any) => {
     if (submitting) {
       return;
     }
     setSubmitting(true);
-    console.log(values);
     const body = {
       userAvatar: avatarUrl,
       userName: values.userName,
     };
     try {
       const res = await updateMyUserUsingPOST(body);
-      console.log(res);
       if (!res?.data) {
         message.error('修改失败');
       } else {
@@ -95,11 +104,11 @@ const Info: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [updateKey]);
 
   return (
     <>
-      <Card title="个人设置" style={{ whiteSpace: 'pre-wrap' }}>
+      <Card title="个人设置" style={{whiteSpace: 'pre-wrap'}}>
         <Form name="userSetting" labelAlign="left" onFinish={onFinish}>
           <Form.Item name="userName" label="用户昵称">
             <Input></Input>
@@ -113,10 +122,11 @@ const Info: React.FC = () => {
               customRequest={uploadImg}
               showUploadList={false}
               beforeUpload={beforeUpload}
+              fileList={[]}
               // onChange={handleChange}
             >
               {imageUrl ? (
-                <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
+                <img src={imageUrl} alt="avatar" style={{width: '100%'}}/>
               ) : (
                 uploadButton
               )}
@@ -131,10 +141,10 @@ const Info: React.FC = () => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
+              <Col style={{paddingLeft: 12, paddingRight: 12}}>
                 <Button htmlType="reset">重置</Button>
               </Col>
-              <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
+              <Col style={{paddingLeft: 12, paddingRight: 12}}>
                 <Button type="primary" htmlType="submit" loading={submitting} disabled={submitting}>
                   修改
                 </Button>
@@ -143,8 +153,8 @@ const Info: React.FC = () => {
           </Form.Item>
         </Form>
       </Card>
-      <Card title="调用密钥" style={{ marginTop: 18 }}>
-        <Descriptions column={1} style={{ justifyContent: 'flex-start' }}>
+      <Card title="调用密钥" style={{marginTop: 18}}>
+        <Descriptions column={1} style={{justifyContent: 'flex-start'}}>
           <Descriptions.Item label="AccessKey">
             <Paragraph copyable>{userData?.accessKey}</Paragraph>
           </Descriptions.Item>
@@ -152,10 +162,10 @@ const Info: React.FC = () => {
             <Paragraph copyable>&nbsp;{userData?.secretKey}</Paragraph>
           </Descriptions.Item>
           <Row>
-            <Col style={{ paddingLeft: 0, paddingRight: 12 }}>
+            <Col style={{paddingLeft: 0, paddingRight: 12}}>
               <Button
                 type="default"
-                icon={<DownloadOutlined />}
+                icon={<DownloadOutlined/>}
                 onClick={() => {
                   alert('click Download');
                 }}
@@ -163,12 +173,12 @@ const Info: React.FC = () => {
                 下载 SDK
               </Button>
             </Col>
-            <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
+            <Col style={{paddingLeft: 12, paddingRight: 12}}>
               <Button
                 type="primary"
-                icon={<ReloadOutlined />}
+                icon={<ReloadOutlined/>}
                 onClick={() => {
-                  alert('click Reload');
+                  reloadKeys();
                 }}
               >
                 重新生成
