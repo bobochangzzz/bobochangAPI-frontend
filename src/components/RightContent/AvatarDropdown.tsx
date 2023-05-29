@@ -1,12 +1,12 @@
-import { userLogoutUsingPOST } from '@/services/bobochangAPI/userController';
-import { LogoutOutlined, MehOutlined } from '@ant-design/icons';
-import { useEmotionCss } from '@ant-design/use-emotion-css';
-import { history, useModel } from '@umijs/max';
-import { Spin } from 'antd';
-import { stringify } from 'querystring';
-import type { MenuInfo } from 'rc-menu/lib/interface';
-import React, { useCallback } from 'react';
-import { flushSync } from 'react-dom';
+import {getLoginUserUsingGET, userLogoutUsingPOST} from '@/services/bobochangAPI/userController'
+import {LogoutOutlined, MehOutlined} from '@ant-design/icons';
+import {useEmotionCss} from '@ant-design/use-emotion-css';
+import {history, useModel} from '@umijs/max';
+import {message, Spin} from 'antd';
+import {stringify} from 'querystring';
+import type {MenuInfo} from 'rc-menu/lib/interface';
+import React, {useCallback, useState} from 'react';
+import {flushSync} from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
 
 export type GlobalHeaderRightProps = {
@@ -70,7 +70,6 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     },
     [setInitialState],
   );
-
   const loading = (
     <span className={actionClassName}>
       <Spin
