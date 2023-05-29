@@ -7,6 +7,7 @@ import { Helmet, history, useModel } from '@umijs/max';
 import { message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
+import { Link } from 'umi';
 import Settings from '../../../../config/defaultSettings';
 
 const Login: React.FC = () => {
@@ -57,7 +58,7 @@ const Login: React.FC = () => {
       message.error(defaultLoginFailureMessage);
     }
   };
-  const { status, type: loginType } = userLoginState;
+
   return (
     <div className={containerClassName}>
       <Helmet>
@@ -134,13 +135,14 @@ const Login: React.FC = () => {
               marginBottom: 24,
             }}
           >
-            <a
+            <Link
               style={{
                 float: 'right',
               }}
+              to="/user/register"
             >
-              还没有账号？点击这里注册吧
-            </a>
+              还没有账号？点击注册账号
+            </Link>
             <br />
           </div>
         </LoginForm>
