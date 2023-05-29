@@ -135,6 +135,14 @@ export async function userRegisterUsingPOST(
   });
 }
 
+/** reloadKey GET /api/user/reload */
+export async function reloadKeyUsingGET(options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean_>('/api/user/reload', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** updateUser POST /api/user/update */
 export async function updateUserUsingPOST(
   body: API.UserUpdateRequest,
