@@ -12,8 +12,6 @@
     ],
   },
   { path: '/', name: '主页', icon: 'smile', component: './Index' },
-  { icon: 'user', path: '/user/info', component: './User/Info' },
-  { path: '/interface_info/:id', component: './InterfaceInfo', hideInMenu: true },
   {
     name: '接口管理',
     icon: 'appstore',
@@ -21,5 +19,7 @@
     access: 'canAdmin',
     component: './Admin/InterfaceInfo',
   },
+  { icon: 'user', path: '/user/info', component: './User/Info' },
+  { path: '/interface_info/:id', component: './InterfaceInfo', hideInMenu: true },
   { path: '*', layout: false, component: './404' },
 ];
