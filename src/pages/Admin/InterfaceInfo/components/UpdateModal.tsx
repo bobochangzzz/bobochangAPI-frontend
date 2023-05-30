@@ -1,11 +1,18 @@
-import {ProColumns, ProFormInstance} from '@ant-design/pro-components';
-import {ModalForm, ProForm, ProFormSelect, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
+import {
+  ModalForm,
+  ProColumns,
+  ProForm,
+  ProFormInstance,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+} from '@ant-design/pro-components';
 import '@umijs/max';
-import {Form} from 'antd';
-import React, {useEffect, useRef} from 'react';
+import { Form } from 'antd';
+import React, { useEffect, useRef } from 'react';
 
 export type Props = {
-  values:API.InterfaceInfo;
+  values: API.InterfaceInfo;
   columns: ProColumns<API.InterfaceInfo>[];
   onCancel: () => void;
   onFinish: (values: API.InterfaceInfo) => Promise<void>;
@@ -14,13 +21,13 @@ export type Props = {
 
 const UpdateModal: React.FC<Props> = (props) => {
   const [form] = Form.useForm<{ name: string; company: string }>();
-  const {visible, values,columns, onCancel, onFinish} = props;
-  const formRef=useRef<ProFormInstance>();
-  useEffect(()=>{
-    if (formRef){
+  const { visible, values, columns, onCancel, onFinish } = props;
+  const formRef = useRef<ProFormInstance>();
+  useEffect(() => {
+    if (formRef) {
       formRef.current?.setFieldsValue(values);
     }
-  },[values])
+  }, [values]);
   return (
     <ModalForm
       autoFocusFirstInput
@@ -29,12 +36,12 @@ const UpdateModal: React.FC<Props> = (props) => {
       formRef={formRef}
       modalProps={{
         destroyOnClose: true,
-        onCancel: () =>onCancel?.(),
+        onCancel: () => onCancel?.(),
       }}
       onFinish={async (values) => {
         onFinish?.(values);
-      }}>
-
+      }}
+    >
       <ProForm.Group>
         <ProFormText
           width="md"
@@ -69,15 +76,14 @@ const UpdateModal: React.FC<Props> = (props) => {
           label="请求类型"
           options={[
             {
-              value:'GET',
-              label:'GET',
+              value: 'GET',
+              label: 'GET',
             },
             {
-              value:'POST',
-              label:'POST',
-            }
-          ]
-          }
+              value: 'POST',
+              label: 'POST',
+            },
+          ]}
           placeholder="请输入请求类型"
         />
       </ProForm.Group>

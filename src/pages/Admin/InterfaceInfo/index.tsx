@@ -1,16 +1,18 @@
+import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
+import UpdateModal from '@/pages/Admin/InterfaceInfo/components/UpdateModal';
 import {
   addInterfaceInfoUsingPOST,
   deleteInterfaceInfoUsingPOST,
-  listInterfaceInfoByPageUsingGET, offlineInterfaceInfoUsingPOST, publishInterfaceInfoUsingPOST,
-  updateInterfaceInfoUsingPOST
+  listInterfaceInfoByPageUsingGET,
+  offlineInterfaceInfoUsingPOST,
+  publishInterfaceInfoUsingPOST,
+  updateInterfaceInfoUsingPOST,
 } from '@/services/bobochangAPI/interfaceInfoController';
-import {PlusOutlined} from '@ant-design/icons';
-import {ActionType, PageContainer, ProColumns, ProTable} from '@ant-design/pro-components';
-import {Button, message} from 'antd';
-import {SortOrder} from 'antd/es/table/interface';
-import React, {useRef, useState} from 'react';
-import CreateModal from "@/pages/Admin/InterfaceInfo/components/CreateModal";
-import UpdateModal from "@/pages/Admin/InterfaceInfo/components/UpdateModal";
+import { PlusOutlined } from '@ant-design/icons';
+import { ActionType, PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, message } from 'antd';
+import { SortOrder } from 'antd/es/table/interface';
+import React, { useRef, useState } from 'react';
 
 const InterfaceInfo: React.FC = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
@@ -44,7 +46,7 @@ const InterfaceInfo: React.FC = () => {
     try {
       await updateInterfaceInfoUsingPOST({
         id: currentRow.id,
-        ...fields
+        ...fields,
       });
       hide();
       message.success('操作成功');
@@ -61,7 +63,7 @@ const InterfaceInfo: React.FC = () => {
     if (!record) return true;
     try {
       await deleteInterfaceInfoUsingPOST({
-        id: record.id
+        id: record.id,
       });
       hide();
       message.success('删除成功');
@@ -79,7 +81,7 @@ const InterfaceInfo: React.FC = () => {
     if (!record) return true;
     try {
       await publishInterfaceInfoUsingPOST({
-        id: record.id
+        id: record.id,
       });
       hide();
       message.success('操作成功');
@@ -97,7 +99,7 @@ const InterfaceInfo: React.FC = () => {
     if (!record) return true;
     try {
       await offlineInterfaceInfoUsingPOST({
-        id: record.id
+        id: record.id,
       });
       hide();
       message.success('操作成功');
@@ -109,7 +111,6 @@ const InterfaceInfo: React.FC = () => {
       return false;
     }
   };
-
 
   const columns: ProColumns<API.InterfaceInfo>[] = [
     {
@@ -179,37 +180,48 @@ const InterfaceInfo: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        record.status === 0 ? <a
-          key="0"
-          type="text"
-          style={{color: 'green'}}
+        record.status === 0 ? (
+          <a
+            key="0"
+            type="text"
+            style={{ color: 'green' }}
+            onClick={() => {
+              handleOnline(record);
+            }}
+          >
+            发布
+          </a>
+        ) : null,
+        record.status === 1 ? (
+          <a
+            type="text"
+            style={{ color: 'orange' }}
+            key="1"
+            onClick={() => {
+              handleOffline(record);
+            }}
+          >
+            下线
+          </a>
+        ) : null,
+        <a
+          key="2"
           onClick={() => {
-            handleOnline(record);
+            handleUpdateModalVisible(true);
+            setCurrentRow(record);
           }}
         >
-          发布
-        </a> : null,
-        record.status === 1 ? <a
-          type="text"
-          style={{color: 'orange'}}
-          key="1"
-          onClick={() => {
-            handleOffline(record);
-          }}
-        >
-          下线
-        </a> : null,
-        <a key="2" onClick={() => {
-          handleUpdateModalVisible(true);
-          setCurrentRow(record);
-        }}>
           修改
         </a>,
-        <a key="3" style={{color:'red'}} onClick={() => {
-          handleRemove(record).then(res => {
-            console.log(res);
-          });
-        }}>
+        <a
+          key="3"
+          style={{ color: 'red' }}
+          onClick={() => {
+            handleRemove(record).then((res) => {
+              console.log(res);
+            });
+          }}
+        >
           删除
         </a>,
       ],
@@ -217,8 +229,8 @@ const InterfaceInfo: React.FC = () => {
   ];
 
   return (
-    <PageContainer style={{whiteSpace: 'pre-wrap'}}>
-      <ProTable<API.RuleListItem,API.PageParams>
+    <PageContainer style={{ whiteSpace: 'pre-wrap' }}>
+      <ProTable<API.RuleListItem, API.PageParams>
         actionRef={actionRef}
         cardBordered
         rowKey="key"
@@ -226,10 +238,14 @@ const InterfaceInfo: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button type="primary" key="button" onClick={() => {
-            handleModalVisible(true);
-          }}>
-            <PlusOutlined/> 新建
+          <Button
+            type="primary"
+            key="button"
+            onClick={() => {
+              handleModalVisible(true);
+            }}
+          >
+            <PlusOutlined /> 新建
           </Button>,
         ]}
         request={async (
@@ -262,7 +278,8 @@ const InterfaceInfo: React.FC = () => {
         onCancel={() => {
           handleModalVisible(false);
         }}
-        onFinish={(values): Promise<boolean> => handleAdd(values)}/>
+        onFinish={(values): Promise<boolean> => handleAdd(values)}
+      />
       <UpdateModal
         columns={columns}
         values={currentRow || {}}
