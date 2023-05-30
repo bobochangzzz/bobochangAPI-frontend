@@ -1,10 +1,15 @@
-import {uploadFileUsingPOST} from '@/services/bobochangAPI/fileController';
-import {getLoginUserUsingGET, reloadKeyUsingGET, updateMyUserUsingPOST,} from '@/services/bobochangAPI/userController';
-import {DownloadOutlined, LoadingOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
-import {Button, Card, Col, Descriptions, Form, message, Row, Typography, Upload} from 'antd';
+import { uploadFileUsingPOST } from '@/services/bobochangAPI/fileController';
+import {
+  getLoginUserUsingGET,
+  reloadKeyUsingGET,
+  updateMyUserUsingPOST,
+} from '@/services/bobochangAPI/userController';
+import { DownloadOutlined, LoadingOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useModel } from '@umijs/max';
+import { Button, Card, Col, Descriptions, Form, message, Row, Typography, Upload } from 'antd';
 import Input from 'antd/es/input/Input';
-import type {RcFile} from 'antd/es/upload/interface';
-import React, {useEffect, useState} from 'react';
+import type { RcFile } from 'antd/es/upload/interface';
+import React, { useEffect, useState } from 'react';
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -25,13 +30,14 @@ const beforeUpload = (file: RcFile) => {
 };
 
 const Info: React.FC = () => {
-  const {Paragraph} = Typography;
+  const { Paragraph } = Typography;
   const [imageUrl, setImageUrl] = useState<string>();
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [userData, setUserData] = useState<API.User>();
+  const [userData, setUserData] = useState<API.LoginUserVO>();
   const [updateKey, setUpdateKey] = useState<boolean>(false);
+  const { initialState, setInitialState } = useModel('@@initialState');
   const loadData = async () => {
     try {
       const res = await getLoginUserUsingGET();
@@ -59,10 +65,15 @@ const Info: React.FC = () => {
     });
   };
 
+  const resetUpload = () => {
+    setAvatarUrl(''); // 重置上传组件中显示的图片链接
+    setImageUrl(''); // 重置预览的图片链接
+  };
+
   const uploadButton = (
     <div>
-      {loading ? <LoadingOutlined/> : <PlusOutlined/>}
-      <div style={{marginTop: 8}}>上传头像</div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>上传头像</div>
     </div>
   );
 
@@ -77,7 +88,7 @@ const Info: React.FC = () => {
       message.error('重新生成密钥失败 ' + e.message);
     }
     setUpdateKey(false);
-  }
+  };
 
   const onFinish = async (values: any) => {
     if (submitting) {
@@ -94,7 +105,20 @@ const Info: React.FC = () => {
         message.error('修改失败');
       } else {
         message.success('修改成功');
-        location.reload();
+        const updateUserData = await getLoginUserUsingGET();
+        if (updateUserData.data) {
+          // 更新全局状态中的用户信息
+          setUserData(updateUserData.data);
+        }
+        // 更新全局状态中的用户信息
+        setInitialState((prevState: any) => ({
+          ...prevState,
+          currentUser: {
+            ...prevState.currentUser,
+            ...updateUserData.data,
+          },
+        }));
+        //location.reload();
       }
     } catch (e: any) {
       message.error('修改失败 ' + e.message);
@@ -108,7 +132,7 @@ const Info: React.FC = () => {
 
   return (
     <>
-      <Card title="个人设置" style={{whiteSpace: 'pre-wrap'}}>
+      <Card title="个人设置" style={{ whiteSpace: 'pre-wrap' }}>
         <Form name="userSetting" labelAlign="left" onFinish={onFinish}>
           <Form.Item name="userName" label="用户昵称">
             <Input></Input>
@@ -126,7 +150,7 @@ const Info: React.FC = () => {
               // onChange={handleChange}
             >
               {imageUrl ? (
-                <img src={imageUrl} alt="avatar" style={{width: '100%'}}/>
+                <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
               ) : (
                 uploadButton
               )}
@@ -141,10 +165,12 @@ const Info: React.FC = () => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Col style={{paddingLeft: 12, paddingRight: 12}}>
-                <Button htmlType="reset">重置</Button>
+              <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
+                <Button htmlType="reset" onClick={resetUpload}>
+                  重置
+                </Button>
               </Col>
-              <Col style={{paddingLeft: 12, paddingRight: 12}}>
+              <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
                 <Button type="primary" htmlType="submit" loading={submitting} disabled={submitting}>
                   修改
                 </Button>
@@ -153,8 +179,8 @@ const Info: React.FC = () => {
           </Form.Item>
         </Form>
       </Card>
-      <Card title="调用密钥" style={{marginTop: 18}}>
-        <Descriptions column={1} style={{justifyContent: 'flex-start'}}>
+      <Card title="调用密钥" style={{ marginTop: 18 }}>
+        <Descriptions column={1} style={{ justifyContent: 'flex-start' }}>
           <Descriptions.Item label="AccessKey">
             <Paragraph copyable>{userData?.accessKey}</Paragraph>
           </Descriptions.Item>
@@ -162,10 +188,10 @@ const Info: React.FC = () => {
             <Paragraph copyable>&nbsp;{userData?.secretKey}</Paragraph>
           </Descriptions.Item>
           <Row>
-            <Col style={{paddingLeft: 0, paddingRight: 12}}>
+            <Col style={{ paddingLeft: 0, paddingRight: 12 }}>
               <Button
                 type="default"
-                icon={<DownloadOutlined/>}
+                icon={<DownloadOutlined />}
                 onClick={() => {
                   alert('click Download');
                 }}
@@ -173,10 +199,10 @@ const Info: React.FC = () => {
                 下载 SDK
               </Button>
             </Col>
-            <Col style={{paddingLeft: 12, paddingRight: 12}}>
+            <Col style={{ paddingLeft: 12, paddingRight: 12 }}>
               <Button
                 type="primary"
-                icon={<ReloadOutlined/>}
+                icon={<ReloadOutlined />}
                 onClick={() => {
                   reloadKeys();
                 }}
