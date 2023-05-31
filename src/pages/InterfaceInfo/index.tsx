@@ -2,7 +2,10 @@ import {
   getInterfaceInfoByIdUsingGET,
   invokeInterfaceUsingPOST,
 } from '@/services/bobochangAPI/interfaceInfoController';
-import { getUserInterfaceInfoByUserIdAndInterfaceInfoIdUsingGET } from '@/services/bobochangAPI/userInterfaceInfoController';
+import {
+  addUserInterfaceInfoUsingPOST,
+  getUserInterfaceInfoByUserIdAndInterfaceInfoIdUsingGET,
+} from '@/services/bobochangAPI/userInterfaceInfoController';
 import { useModel, useParams } from '@@/exports';
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Card, Descriptions, Form, Input, message } from 'antd';
@@ -26,6 +29,11 @@ const InterfaceInfo: React.FC = () => {
       return;
     }
     try {
+      await addUserInterfaceInfoUsingPOST({
+        userId: initialState?.currentUser?.id,
+        interfaceInfoId: Number(params.id),
+        leftNum: 10,
+      });
       const res = await invokeInterfaceUsingPOST({
         id: params.id,
         ...values,
