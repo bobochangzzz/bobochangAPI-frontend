@@ -129,7 +129,7 @@ export default defineConfig({
   openAPI: [
     {
       requestLibPath: "import { request } from '@umijs/max'",
-      schemaPath: 'http://localhost:7529/api/v2/api-docs',
+      schemaPath: 'http://175.178.234.102:7529/api/v2/api-docs',
       projectName: 'bobochangAPI',
     },
   ],

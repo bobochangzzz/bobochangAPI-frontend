@@ -49,6 +49,16 @@ const Info: React.FC = () => {
       message.error('获取用户信息失败 ' + e.message);
     }
   };
+
+  const handleDownload = async () => {
+    const fileUrl =
+      'https://bobocahng-1309945187.cos.ap-guangzhou.myqcloud.com/bobochangAPI-sdk-1.0.jar'; // 替换为你要下载的文件的URL
+
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = 'bobochangAPI_SDK_1.0.jar'; // 可以设置下载文件的名称
+    link.click();
+  };
   const uploadImg = async (values: any) => {
     const res = await uploadFileUsingPOST(
       values.name,
@@ -189,13 +199,7 @@ const Info: React.FC = () => {
           </Descriptions.Item>
           <Row>
             <Col style={{ paddingLeft: 0, paddingRight: 12 }}>
-              <Button
-                type="default"
-                icon={<DownloadOutlined />}
-                onClick={() => {
-                  alert('click Download');
-                }}
-              >
+              <Button type="default" icon={<DownloadOutlined />} onClick={handleDownload}>
                 下载 SDK
               </Button>
             </Col>

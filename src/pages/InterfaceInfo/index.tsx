@@ -6,10 +6,11 @@ import {
   addUserInterfaceInfoUsingPOST,
   getUserInterfaceInfoByUserIdAndInterfaceInfoIdUsingGET,
 } from '@/services/bobochangAPI/userInterfaceInfoController';
-import { useModel, useParams } from '@@/exports';
 import { PageContainer } from '@ant-design/pro-components';
+import { useModel } from '@umijs/max';
 import { Button, Card, Descriptions, Form, Input, message } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 
 const InterfaceInfo: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -35,8 +36,8 @@ const InterfaceInfo: React.FC = () => {
         leftNum: 10,
       });
       const res = await invokeInterfaceUsingPOST({
-        id: params.id,
-        ...values,
+        id: Number(params.id),
+        requestParams: values?.requestParams ?? '',
       });
       setInvokeRes(res.data);
       message.success('调用成功');
@@ -101,9 +102,13 @@ const InterfaceInfo: React.FC = () => {
       </Card>
       <Card title="请求参数" style={{ marginTop: 18 }}>
         <Form name="invoke" layout="vertical" onFinish={onFinish}>
-          <Form.Item name="requestParams">
-            <Input.TextArea placeholder={placeholder} />
-          </Form.Item>
+          {Number(params?.id) === 1 ? (
+            <Form.Item name="requestParams">
+              <Input.TextArea placeholder={placeholder} />
+            </Form.Item>
+          ) : (
+            <></>
+          )}
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={invokeLoading}>
               调用
@@ -120,12 +125,12 @@ const InterfaceInfo: React.FC = () => {
           <>请先点击调用获取结果</>
         )}
       </Card>
-      <Card title="调用次数" style={{ marginTop: 18 }}>
+      {/*<Card title="调用次数" style={{ marginTop: 18 }}>
         <Descriptions column={1}>
           <Descriptions.Item label="总调用次数">{invokeTotalNum}</Descriptions.Item>
           <Descriptions.Item label="剩余调用次数">{invokeLeftNum}</Descriptions.Item>
         </Descriptions>
-      </Card>
+      </Card>*/}
     </PageContainer>
   );
 };
