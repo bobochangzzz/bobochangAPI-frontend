@@ -66,13 +66,8 @@ const Register: React.FC = () => {
               submitText: '注册',
             },
           }}
-          logo={
-            <img
-              alt="logo"
-              src="https://bobocahng-1309945187.cos.ap-guangzhou.myqcloud.com/20230524/IMG_0502.JPG"
-            />
-          }
-          title="啵啵肠智能BI平台"
+          logo={<img alt="logo" src="/logo.svg" />}
+          title="API OPEN PLATFORM"
           subTitle={'@Design By bobochang'}
           onFinish={async (values) => {
             await handleSubmit(values as API.UserRegisterRequest);
