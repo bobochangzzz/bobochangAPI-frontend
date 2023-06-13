@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-   <a target="_blank" href="https://github.com/bobochangzzz/bobochangAPI-backend">
+   <a target="_blank" href="https://github.com/bobochangzzz/bobochangAPI-frontend">
       <img src="https://img.shields.io/badge/JDK-8-green"/>
       <img src="https://img.shields.io/badge/springboot-2.7.0-green"/>
       <img src="https://img.shields.io/badge/react-green"/>
