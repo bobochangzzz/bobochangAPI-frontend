@@ -28,7 +28,7 @@
 
 **测试账号：** `test`，**密码：** `test123456`
 
-**Github 地址：** [https://github.com/bobochangzzz/bobochangAPI-backend/](https://github.com/bobochangzzz/bobochangAPI-backend/)
+**Github 地址：** [https://github.com/bobochangzzz/bobochangAPI-frontend/](https://github.com/bobochangzzz/bobochangAPI-frontend/)
 
 ## 本地运行
 
